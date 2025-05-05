@@ -1,0 +1,122 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Mock API",
+    "version": "1.0.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/token": {
+      "post": {
+        "summary": "JWT トークンを発行",
+        "description": "ユーザー ID を指定して JWT トークンを取得します。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sub": {
+                    "type": "string",
+                    "description": "トークン発行対象のユーザー ID"
+                  }
+                },
+                "required": ["sub"]
+              },
+              "example": {
+                "sub": "2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "トークン発行結果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "発行された JWT トークン"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "トークンの有効期限 (UTC ISO 8601)"
+                    }
+                  }
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…",
+                  "expires_at": "2025-05-06T10:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request: リクエストボディが不正"
+          },
+          "405": {
+            "description": "Method Not Allowed"
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "ユーザー取得（認証必須）",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "成功時にユーザー情報を返却" },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [
+          { "bearerAuth": [] }
+        ]
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "ログイン（条件付きレスポンス）",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" }
+                },
+                "required": ["username"]
+              },
+              "example": { "username": "admin" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "ログイン結果を返却" }
+        },
+        "security": []
+      }
+    }
+  }
+}

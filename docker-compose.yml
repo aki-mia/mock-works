@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  mock-server:
+    build:
+      context: ./mock-server
+      dockerfile: Dockerfile
+    container_name: mock-server
+    environment:
+      - ALLOWED_ORIGINS=http://localhost:3000
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./mock-server/routes.json:/app/routes.json:ro
+      - ./mock-server/responses:/app/responses:ro
+
+  web-ui:
+    build:
+      context: ./web-ui
+      dockerfile: Dockerfile
+    container_name: mock-ui
+    depends_on:
+      - mock-server
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE=http://localhost:8080

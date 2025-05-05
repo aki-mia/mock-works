@@ -1,0 +1,24 @@
+[
+  {
+    "method": "GET",
+    "path": "/users/{id}",
+    "response_template": "users_{id}.json",
+    "auth": true,
+    "delay": 200
+  },
+  {
+    "method": "POST",
+    "path": "/login",
+    "response_template": "login_default.json",
+    "match": {
+      "field": "username",
+      "source": "body",
+      "cases": {
+        "admin": "login_admin.json",
+        "guest": "login_guest.json"
+      },
+      "default": "login_default.json"
+    },
+    "delay": 500
+  }
+]
