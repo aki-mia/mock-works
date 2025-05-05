@@ -7,7 +7,7 @@
 
 /* 全体フォント */
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: Noto Sans JP, sans-serif;
   background-color: #f9f9f9;
   color: #333;
 }
@@ -21,3 +21,15 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+input {
+  margin-left: 4px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+label {
+  margin-left: 8px;
+}
+

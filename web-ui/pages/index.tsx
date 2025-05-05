@@ -54,62 +54,60 @@ export default function Home() {
     <>
       {/* Drawer Navigation */}
       <nav className="left drawer">
-        <a href="#">
-          <i>home</i>
-          <div>Home</div>
+        <a target="_blank" href="https://github.com/aki-mia/mock-works">
+          <i>fork_right</i>
+          <div>Github</div>
         </a>
-        <a href="#">
-          <i>search</i>
-          <div>Search</div>
+        <a target="_blank" href="http://localhost:8080/swagger/">
+          <i>api</i>
+          <div>Swagger UI</div>
         </a>
-        <a href="#">
-          <i>share</i>
-          <div>Share</div>
-        </a>
+        <button className="small-round success" type="submit">
+          Save All Setting
+        </button>
       </nav>
-
       {/* Main Content */}
       <main className="responsive">
-        <h1 className="title">Mock API Route Editor</h1>
+        <h1 className="title">MockWorks API Route Editor</h1>
         <button className="small-round" onClick={handleAdd}>+ Add Route</button>
-
-        <form onSubmit={handleSave}>
+        <form>
           {edited.map((r, i) => (
             <article className="card" key={i}>
-              <h2 className="subtitle">Route #{i + 1}</h2>
-              <button className="small-round error" type="button" onClick={() => handleDelete(i)}>
+              <h4 className="subtitle">Route #{i + 1}
+                <button className="small absolute right small-round error" type="button" onClick={() => handleDelete(i)}>
                 Delete
               </button>
+              </h4>
+              <span className="field border extra">
+                <label>
+                  Method:
+                  <input
+                    type="text"
+                    value={r.method}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(i, 'method', e.target.value)}
+                  />
+                </label>
 
-              <label>
-                Method:
-                <input
-                  type="text"
-                  value={r.method}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(i, 'method', e.target.value)}
-                />
-              </label>
+                <label>
+                  Path:
+                  <input
+                    type="text"
+                    value={r.path}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(i, 'path', e.target.value)}
+                  />
+                </label>
 
-              <label>
-                Path:
-                <input
-                  type="text"
-                  value={r.path}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(i, 'path', e.target.value)}
-                />
-              </label>
-
-              <label>
-                Template:
-                <input
-                  type="text"
-                  value={r.response_template}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(i, 'response_template', e.target.value)}
-                />
-              </label>
-
+                <label>
+                  Template:
+                  <input
+                    type="text"
+                    value={r.response_template}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(i, 'response_template', e.target.value)}
+                  />
+                </label>
+              </span>
               <details>
-                <summary>Options</summary>
+                <summary><i>settings</i>Options</summary>
                 <label>
                   <input
                     type="checkbox"
@@ -128,13 +126,7 @@ export default function Home() {
               </details>
             </article>
           ))}
-
-          <button className="small-round success" type="submit">Save All</button>
         </form>
-
-        <nav>
-          <a target="_blank" href="http://localhost:8080/swagger/">👉 View Swagger UI</a>
-        </nav>
       </main>
     </>
   );
