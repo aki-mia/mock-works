@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   mock-server:
     build:
@@ -10,17 +9,20 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./mock-server/routes.json:/app/routes.json:ro
+      - ./mock-server/routes.json:/app/routes.json
       - ./mock-server/responses:/app/responses:ro
+      - ./mock-server/static/swagger:/app/static/swagger
 
   web-ui:
     build:
       context: ./web-ui
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE: http://mock-server:8080
     container_name: mock-ui
     depends_on:
       - mock-server
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_BASE=http://localhost:8080
+      - NEXT_PUBLIC_API_BASE=http://mock-server:8080

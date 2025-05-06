@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start -p 3000"
+    "start": "next start -p 3000",
+    "test:api": "dredd http://mock-server:8080/swagger/swagger.json http://mock-server:8080 --reporter spec"
   },
   "dependencies": {
     "next": "^15.3.1",
@@ -15,6 +16,7 @@
   "devDependencies": {
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",
+    "dredd": "^14.1.0",
     "typescript": "^5.8.3"
   }
 }

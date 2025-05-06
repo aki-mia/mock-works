@@ -1,7 +1,6 @@
 FROM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY . .
-RUN go mod download
 RUN go build -o mockserver main.go
 
 FROM alpine:latest

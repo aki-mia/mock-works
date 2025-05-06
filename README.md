@@ -174,6 +174,20 @@ yarn dev
     "path": "/items",
     "response_template": "items_default.json",
     "match": {
+      "fields": ["type","sort"],
+      "source": "query",
+      "cases": {
+        "foo_asc": "items_foo_asc.json", # ?type=foo&sort=asc
+        "bar_desc": "items_bar_desc.json" # ?type=bar&sort=desc
+      },
+      "default": "items_default.json"
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/items",
+    "response_template": "items_default.json",
+    "match": {
       "field": "type",
       "source": "query",           # Check 'type' in the query string (?type=)
       "cases": {
@@ -238,14 +252,14 @@ curl -i -X POST \
 
 ```bash
 # when type=foo
-curl -i http://localhost:8080/items?type=foo
+curl -i 'http://localhost:8080/items?type=foo'
 
 # when type=bar
-curl -i http://localhost:8080/items?type=bar
+curl -i 'http://localhost:8080/items?type=bar'
 
 # when type is missing or other
-curl -i http://localhost:8080/items
-curl -i http://localhost:8080/items?type=baz
+curl -i 'http://localhost:8080/items'
+curl -i 'http://localhost:8080/items?type=baz'
 ```
 
 - `?type=foo` ⇒ `items_foo.json`
