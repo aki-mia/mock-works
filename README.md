@@ -43,6 +43,10 @@ mock_server_project/
 │ ├ package.json
 │ ├ next.config.js
 │ └ pages/index.js # Root editor page
+├─ THIRD_PARTY_LICENSES/
+│ ├ Apache-2.0.txt
+│ └ NOTICE.Apache-2.0.txt
+├─ LICENCE
 └─ README.md # This README for the entire project
 ```
 
@@ -234,3 +238,9 @@ docker compose up --build -t mockserver .
 ---
 
 For any questions or feedback, please open an issue or contact the maintainer.
+
+## License
+
+- © aki-mia — [MIT License](./LICENSE)
+- Includes third-party components under [Apache License 2.0](./THIRD_PARTY_LICENSES/Apache-2.0.txt)
+  (see `THIRD_PARTY_LICENSES/NOTICE.Apache-2.0.txt` for notices)
