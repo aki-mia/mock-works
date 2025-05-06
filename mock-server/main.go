@@ -25,7 +25,8 @@ type Route struct {
 }
 
 type MatchDefinition struct {
-	Field   string            `json:"field"`
+	Fields  []string          `json:"fields"`
+	Field   string            `json:"field,omitempty"`
 	Source  string            `json:"source"`
 	Cases   map[string]string `json:"cases"`
 	Default string            `json:"default"`
@@ -127,15 +128,31 @@ func main() {
 			}
 
 			if route.Match != nil {
-				var val string
+				var key string
+
 				if route.Match.Source == "body" {
+					// body-based routing (unchanged)
 					var body map[string]string
 					_ = json.NewDecoder(r.Body).Decode(&body)
-					val = body[route.Match.Field]
+					key = body[route.Match.Field]
+
 				} else {
-					val = r.URL.Query().Get(route.Match.Field)
+					// query-based routing: support either single "field" or multiple "fields"
+					if len(route.Match.Fields) > 0 {
+						// multiple query params combined with "_"
+						vals := make([]string, len(route.Match.Fields))
+						for i, f := range route.Match.Fields {
+							vals[i] = r.URL.Query().Get(f)
+						}
+						key = strings.Join(vals, "_")
+					} else {
+						// fallback to single-field behavior
+						key = r.URL.Query().Get(route.Match.Field)
+					}
 				}
-				if override, ok := route.Match.Cases[val]; ok {
+
+				// choose filename based on the joined key
+				if override, ok := route.Match.Cases[key]; ok {
 					filename = override
 				} else {
 					filename = route.Match.Default

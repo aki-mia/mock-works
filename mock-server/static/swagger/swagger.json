@@ -82,7 +82,8 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": { "type": "string" },
+            "example": "1"
           }
         ],
         "responses": {
@@ -114,6 +115,82 @@
         },
         "responses": {
           "200": { "description": "ログイン結果を返却" }
+        },
+        "security": []
+      }
+    },
+    "/items": {
+      "get": {
+        "summary": "アイテム取得（クエリパラメータによる分岐）",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "フィルターするアイテムのタイプ",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "foo"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "ソート順（asc または desc）",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"]
+            },
+            "example": "asc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "条件に応じたアイテム一覧を返却",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": { "type": "string" },
+                      "sort": { "type": "string" }
+                    }
+                  }
+                },
+                "examples": {
+                  "default": {
+                    "summary": "デフォルト応答",
+                    "value": [{"type": "default" }]
+                  },
+                  "foo_asc": {
+                    "summary": "type=foo&sort=asc",
+                    "value": [{"type": "foo", "sort": "asc" }]
+                  },
+                  "bar_desc": {
+                    "summary": "type=bar&sort=desc",
+                    "value": [{"type": "bar", "sort": "desc" }]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "不正なクエリパラメータ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" }
+                  }
+                },
+                "example": { "error": "Missing required fields" }
+              }
+            }
+          }
         },
         "security": []
       }
