@@ -160,7 +160,7 @@ yarn dev
     "response_template": "login_default.json",
     "match": {
       "field": "username",
-      "source": "body",
+      "source": "body",            # Check 'username' in the request body (JSON)
       "cases": {
         "admin": "login_admin.json",
         "guest": "login_guest.json"
@@ -168,6 +168,20 @@ yarn dev
       "default": "login_default.json"
     },
     "delay": 500
+  },
+  {
+    "method": "GET",
+    "path": "/items",
+    "response_template": "items_default.json",
+    "match": {
+      "field": "type",
+      "source": "query",           # Check 'type' in the query string (?type=)
+      "cases": {
+        "foo": "items_foo.json",
+        "bar": "items_bar.json"
+      },
+      "default": "items_default.json"
+    }
   }
 ]
 ```
@@ -176,8 +190,67 @@ yarn dev
 - path: Supports path parameters {param} (/users/{id})
 - response_template: JSON file name under responses/
 - auth: Enable JWT authentication (Bearer token format) when set to true
-- delay: Delay response in milliseconds
+- delay: pauses for the specified number of milliseconds before sending the response
 - match: Set conditions for branching based on request body/query
+
+#### Request Examples
+
+1. GET /users/ (with auth and delay)
+
+```bash
+curl -i \
+  -H "Authorization: Bearer eyJhbGciOi…" \
+  http://localhost:8080/users/123
+```
+
+- Returns `responses/users_123.json`
+- Missing or invalid Authorization ⇒ 401 Unauthorized
+- ~200 ms delay
+
+2. POST /login (body-based routing with delay)
+
+```bash
+# admin
+curl -i -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"xxx"}' \
+  http://localhost:8080/login
+
+# guest
+curl -i -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"guest","password":"yyy"}' \
+  http://localhost:8080/login
+
+# others
+curl -i -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"someone","password":"zzz"}' \
+  http://localhost:8080/login
+```
+
+- `"admin"` ⇒ `login_admin.json`
+- `"guest"` ⇒ `login_guest.json`
+- Otherwise ⇒ `login_default.json`
+- ~500 ms delay
+
+3. GET /items?type= (query-based routing)
+
+```bash
+# when type=foo
+curl -i http://localhost:8080/items?type=foo
+
+# when type=bar
+curl -i http://localhost:8080/items?type=bar
+
+# when type is missing or other
+curl -i http://localhost:8080/items
+curl -i http://localhost:8080/items?type=baz
+```
+
+- `?type=foo` ⇒ `items_foo.json`
+- `?type=bar` ⇒ `items_bar.json`
+- Otherwise ⇒ `items_default.json`
 
 ---
 
@@ -188,7 +261,7 @@ yarn dev
 
   ex:
 
-```
+```json
 responses/
 ├ users_1.json       # {"id":1,"name":"Taro"}
 ├ users_2.json       # {"id":2,"name":"Hanako"}
@@ -208,7 +281,7 @@ Obtain the token using curl as follows
 
 sub2: Token for user with user ID = 2
 
-```
+```bash
 curl -X POST http://localhost:8080/token \
   -H "Content-Type: application/json" \
   -d '{"sub":"2"}'
