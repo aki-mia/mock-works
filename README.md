@@ -10,6 +10,8 @@
 [![HTML](https://img.shields.io/badge/-html-555.svg?logo=html5&style=flat)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![Docker](https://img.shields.io/badge/-Docker-555.svg?logo=docker&style=flat)](https://www.docker.com/)
 
+[日本語](./README-ja.md)
+
 Created for the purpose of learning `Go` and `swagger`.
 
 This repository provides an easy-to-set-up **mock API server** in Go and a **Web UI (routes.json editor)** using Next.js. The goal is to allow you to test responses according to specifications without a real backend when developing frontends.
@@ -43,6 +45,7 @@ mock_server_project/
 │ ├ Apache-2.0.txt
 │ └ NOTICE.Apache-2.0.txt
 ├─ LICENCE
+├─ README-ja.md # README Japanese Ver.
 └─ README.md # This README for the entire project
 ```
 
@@ -52,21 +55,33 @@ mock_server_project/
 docker compose up --build -t mockserver .
 ```
 
+This tool uses localhost ports `3000` and `8080` by default.
+
+### Environment variable settings (JWT secret)
+
+- By default, `jwtSecret` in `main.go` is used.
+- If you need, please rewrite it via environment variables:
+
+```go
+jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+```
+
 ## Config
 
-### Place the static release of Swagger UI: `mock-server/static/swagger/swagger.json`
+### Place the static resource of Swagger UI: `mock-server/static/swagger/swagger.json`
 
-- Place the static release of Swagger UI and swagger.json under static/swagger/.
+- Place the static resource of Swagger UI and `swagger.json` under `mock-server/static/swagger/`.
+- `swagger.json` is written based on the [OpenAPI Specification (OAS3.0)](https://swagger.io/specification/).
+  - `swagger.json` is referenced by `Dredd (HTTP API Testing Framework)` and used to verify that API responses comply with OAS definitions.
+  - Access `http://localhost:3000` and click the “Run API Tests” button to run the tests in `Dredd`.
 - Access http://localhost:8080/swagger/ in your browser to open the API documentation.
 
 Obtain the token using curl as follows
 
-sub2: Token for user with user ID = 2
-
 ```bash
 curl -X POST http://localhost:8080/token \
   -H "Content-Type: application/json" \
-  -d '{"sub":"2"}'
+  -d '{"sub":"2"}' # sub2: Token for user with user ID = 2
 ```
 
 Response example:
@@ -138,6 +153,9 @@ Response example:
 - auth: Enable JWT authentication (Bearer token format) when set to true
 - delay: pauses for the specified number of milliseconds before sending the response
 - match: Set conditions for branching based on request body/query
+
+**You can edit routes.json from the WebUI by accessing `http://localhost:3000`.**
+
 
 ### responses directory: `mock-server/responses`
 
@@ -242,13 +260,8 @@ curl -i 'http://localhost:8080/items2?type=baz'
 
 ### Swagger UI
 
-- Static release of Swagger UI under `static/swagger/` + display `/swagger/` using `swagger.json`
+- Static resource of Swagger UI under `static/swagger/` + display `/swagger/` using `swagger.json`
 - Try it out to test the API
-
-### Route Definition API
-
-- `GET /api/routes` → Returns the current `routes.json`
-- `POST /api/routes` → Receives the modified JSON and saves it over the existing file
 
 ---
 
@@ -288,14 +301,6 @@ go run main.go
 ```
 
 When launched for the first time, load `routes.json` and wait at `http://localhost:8080`.
-
-### Environment variable settings (JWT secret)
-
-- By default, `jwtSecret` in `main.go` is used.
-- To make it closer to actual operation, please rewrite it via environment variables:
-- ```go
-  jwtSecret := []byte(os.Getenv("JWT_SECRET"))
-  ```
 
 ### Optional: Front-end (Web UI) setup
 
