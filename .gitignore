@@ -1,7 +1,10 @@
 .idea/
 .vscode/
+.DS_Store
 
 .history/
 web-ui/.next/
 web-ui/.yarn/
 web-ui/node_modules/
+
+static/swagger/routes.json

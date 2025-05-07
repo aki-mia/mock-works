@@ -1,5 +1,15 @@
 # MockWorks
 
+[![Homebrew](https://img.shields.io/badge/-Homebrew-555.svg?logo=homebrew&style=flat)](https://brew.sh/)
+[![mise](https://img.shields.io/badge/mise-brightgreen)](https://mise.jdx.dev/)
+[![beercss](https://img.shields.io/badge/beercss-brightgreen)](https://www.beercss.com/)
+[![dredd](https://img.shields.io/badge/dredd-brightgreen)](https://dredd.org/en/latest/)
+[![Go](https://img.shields.io/badge/-go-555.svg?logo=go&style=flat)](https://go.dev/)
+[![TypeScript](https://img.shields.io/badge/-TypeScript-555.svg?logo=typescript&style=flat)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/-React-555.svg?logo=react&style=flat)](https://ja.react.dev/)
+[![HTML](https://img.shields.io/badge/-html-555.svg?logo=html5&style=flat)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![Docker](https://img.shields.io/badge/-Docker-555.svg?logo=docker&style=flat)](https://www.docker.com/)
+
 Created for the purpose of learning `Go` and `swagger`.
 
 This repository provides an easy-to-set-up **mock API server** in Go and a **Web UI (routes.json editor)** using Next.js. The goal is to allow you to test responses according to specifications without a real backend when developing frontends.
@@ -15,23 +25,9 @@ This repository provides an easy-to-set-up **mock API server** in Go and a **Web
 
 ---
 
-## Prerequisites
-
-* **mise** command is available.
-* Git is installed
-* Node.js is required (as a runtime environment for yarn)
-
-### Installing mise
-
-```bash
-brew install mise
-```
-
----
-
 ## directory structure
 
-```
+```bash
 mock_server_project/
 ├─ mock-server/ # Go-based backend
 │ ├ main.go # Main server implementation
@@ -50,98 +46,34 @@ mock_server_project/
 └─ README.md # This README for the entire project
 ```
 
----
-
-## Backend setup
-
-### Installing Go and yarn (mise)
+## Docker Setup
 
 ```bash
-mise i
+docker compose up --build -t mockserver .
 ```
 
-### Getting Go modules
+## Config
+
+### Place the static release of Swagger UI: `mock-server/static/swagger/swagger.json`
+
+- Place the static release of Swagger UI and swagger.json under static/swagger/.
+- Access http://localhost:8080/swagger/ in your browser to open the API documentation.
+
+Obtain the token using curl as follows
+
+sub2: Token for user with user ID = 2
 
 ```bash
-cd mock-server
-go mod tidy
-go mod download
+curl -X POST http://localhost:8080/token \
+  -H "Content-Type: application/json" \
+  -d '{"sub":"2"}'
 ```
 
-### Server startup
+Response example:
 
-```bash
-cd mock-server
-go run main.go
-```
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…"}
 
-When launched for the first time, load `routes.json` and wait at `http://localhost:8080`.
-
-### Environment variable settings (JWT secret)
-
-- By default, `jwtSecret` in `main.go` is used.
-- To make it closer to actual operation, please rewrite it via environment variables:
-- ```go
-  jwtSecret := []byte(os.Getenv("JWT_SECRET"))
-  ```
-
----
-
-## Optional: Front-end (Web UI) setup
-
-### Install package with yarn
-
-```bash
-cd web-ui
-yarn install
-```
-
-### Start development server
-
-```bash
-cd web-ui
-yarn dev
-```
-
-`http://localhost:3000` launches the root definition editor.
-
----
-
-## Explanation of key features
-
-### CORS/Preflight Support
-
-- Add the `Access-Control-Allow-*` header to all responses
-- Respond immediately with status 200 to `OPTIONS` requests
-
-### JWT Authentication
-
-- Check the `Authorization: Bearer <token>` header format
-- Perform signature verification using `github.com/golang-jwt/jwt/v4`
-
-### Response delay simulation
-
-- Use the `delay` property (ms) in `routes.json` to delay responses with `time.Sleep`
-
-### Path parameter support
-
-- Define in the format `/users/{id}` → Dynamically match to the client's `/users/123`
-
-### Conditional responses
-
-- Return a file based on specific fields in the request body/query using the `match` setting
-
-### Swagger UI
-
-- Static release of Swagger UI under `static/swagger/` + display `/swagger/` using `swagger.json`
-- Try it out to test the API
-
-### Route Definition API
-
-- `GET /api/routes` → Returns the current `routes.json`
-- `POST /api/routes` → Receives the modified JSON and saves it over the existing file
-
-## How to write routes.json
+### Defines a single API route: `mock-server/routes.json`
 
 `routes.json` is a JSON array like the following, where each object defines a single API route.
 
@@ -171,7 +103,7 @@ yarn dev
   },
   {
     "method": "GET",
-    "path": "/items",
+    "path": "/items1",
     "response_template": "items_default.json",
     "match": {
       "fields": ["type","sort"],
@@ -185,7 +117,7 @@ yarn dev
   },
   {
     "method": "GET",
-    "path": "/items",
+    "path": "/items2",
     "response_template": "items_default.json",
     "match": {
       "field": "type",
@@ -207,7 +139,23 @@ yarn dev
 - delay: pauses for the specified number of milliseconds before sending the response
 - match: Set conditions for branching based on request body/query
 
-#### Request Examples
+### responses directory: `mock-server/responses`
+
+- Place the response JSON for each API in the `mock-server/responses` folder.
+- File names must match those specified in response_template or match.cases.
+
+ex:
+
+```json
+responses/
+├ users_1.json       # {"id":1,"name":"Taro"}
+├ users_2.json       # {"id":2,"name":"Hanako"}
+├ login_admin.json   # {"status":"admin_login"}
+├ login_guest.json   # {"status":"guest_login"}
+└ login_default.json # {"status":"unknown_user"}
+```
+
+## Request Examples
 
 1. GET /users/ (with auth and delay)
 
@@ -252,14 +200,14 @@ curl -i -X POST \
 
 ```bash
 # when type=foo
-curl -i 'http://localhost:8080/items?type=foo'
+curl -i 'http://localhost:8080/items2?type=foo'
 
 # when type=bar
-curl -i 'http://localhost:8080/items?type=bar'
+curl -i 'http://localhost:8080/items2?type=bar'
 
 # when type is missing or other
-curl -i 'http://localhost:8080/items'
-curl -i 'http://localhost:8080/items?type=baz'
+curl -i 'http://localhost:8080/items2'
+curl -i 'http://localhost:8080/items2?type=baz'
 ```
 
 - `?type=foo` ⇒ `items_foo.json`
@@ -268,50 +216,104 @@ curl -i 'http://localhost:8080/items?type=baz'
 
 ---
 
-## responses directory
+## Explanation of key features
 
-- Place the response JSON for each API in the responses/ folder.
-- File names must match those specified in response_template or match.cases.
+### CORS/Preflight Support
 
-  ex:
+- Add the `Access-Control-Allow-*` header to all responses
+- Respond immediately with status 200 to `OPTIONS` requests
 
-```json
-responses/
-├ users_1.json       # {"id":1,"name":"Taro"}
-├ users_2.json       # {"id":2,"name":"Hanako"}
-├ login_admin.json   # {"status":"admin_login"}
-├ login_guest.json   # {"status":"guest_login"}
-└ login_default.json # {"status":"unknown_user"}
-```
+### JWT Authentication
 
----
+- Check the `Authorization: Bearer <token>` header format
+- Perform signature verification using `github.com/golang-jwt/jwt/v4`
 
-## Swagger UI
+### Response delay simulation
 
-- Place the static release of Swagger UI and swagger.json under static/swagger/.
-- Access http://localhost:8080/swagger/ in your browser to open the API documentation.
+- Use the `delay` property (ms) in `routes.json` to delay responses with `time.Sleep`
 
-Obtain the token using curl as follows
+### Path parameter support
 
-sub2: Token for user with user ID = 2
+- Define in the format `/users/{id}` → Dynamically match to the client's `/users/123`
 
-```bash
-curl -X POST http://localhost:8080/token \
-  -H "Content-Type: application/json" \
-  -d '{"sub":"2"}'
-```
+### Conditional responses
 
-Response example:
+- Return a file based on specific fields in the request body/query using the `match` setting
 
-{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…"}
+### Swagger UI
+
+- Static release of Swagger UI under `static/swagger/` + display `/swagger/` using `swagger.json`
+- Try it out to test the API
+
+### Route Definition API
+
+- `GET /api/routes` → Returns the current `routes.json`
+- `POST /api/routes` → Receives the modified JSON and saves it over the existing file
 
 ---
 
-## Docker
+## Prerequisites(local Setup)
+
+* **mise** command is available.
+* Git is installed
+* Node.js is required (as a runtime environment for yarn)
+
+### Installing mise
 
 ```bash
-docker compose up --build -t mockserver .
+brew install mise
 ```
+
+### Backend setup
+
+#### Installing Go and yarn (mise)
+
+```bash
+mise i
+```
+
+#### Getting Go modules
+
+```bash
+cd mock-server
+go mod tidy
+go mod download
+```
+
+#### Server startup
+
+```bash
+cd mock-server
+go run main.go
+```
+
+When launched for the first time, load `routes.json` and wait at `http://localhost:8080`.
+
+### Environment variable settings (JWT secret)
+
+- By default, `jwtSecret` in `main.go` is used.
+- To make it closer to actual operation, please rewrite it via environment variables:
+- ```go
+  jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+  ```
+
+### Optional: Front-end (Web UI) setup
+
+#### Install package with yarn
+
+```bash
+cd web-ui
+yarn install
+```
+
+#### Start development server
+
+```bash
+cd web-ui
+yarn dev
+```
+
+`http://localhost:3000` launches the root definition editor.
 
 ---
 
