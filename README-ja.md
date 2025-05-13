@@ -51,8 +51,10 @@ mock_server_project/
 
 ## Docker環境
 
+*`mock-server/routes.json.sample`ファイルを `mock-server/routes.json`にリネームしてください。 `routes.json` ファイルが初回のbuild時に必要です。その後プロジェクトrootから以下を実行してください。*
+
 ```bash
-docker compose up --build -t mockserver .
+docker compose up --build
 ```
 
 このツールはデフォルトで `localhost`のポート `3000` と `8080` を使用します。
