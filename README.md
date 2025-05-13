@@ -51,8 +51,10 @@ mock_server_project/
 
 ## Docker Setup
 
+*Rename the `mock-server/routes.json.sample` file to `mock-server/routes.json`. The `routes.json` file is required for build.*
+
 ```bash
-docker compose up --build -t mockserver .
+docker compose up --build
 ```
 
 This tool uses localhost ports `3000` and `8080` by default.
